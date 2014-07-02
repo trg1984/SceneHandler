@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>CSV file test</title>
+        <link rel="stylesheet" href="style/page.css" />
+        <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+        <script src="SceneHandler.js"></script>
+        <script>
+        
+			var func = function(place, config, translations, callback) {
+				console.log('funktiossa!');
+				place.empty().css('background-color', config.color);
+				if (typeof(config.text) === 'string') place.append(config.text);
+				if (typeof(config.clickable) === 'boolean' || config.clickable) {
+					place.click( callback );
+				}
+				else setTimeout(callback, 1000);
+			}
+        
+			$(document).ready(
+				function(e) {
+					console.log('lataus alkaa!');
+					var sceneHandler = new SceneHandler();
+					sceneHandler.push(func, $('#placeholder'), {color: 'red', text: 'Click to start!', clickable: true}, null);
+					sceneHandler.push(func, $('#placeholder'), {color: 'green'}, null);
+					sceneHandler.push(func, $('#placeholder'), {color: 'blue', clickable:true}, null);
+					sceneHandler.push(func, $('#placeholder'), {color: 'black'}, null);
+					console.log(sceneHandler);
+					sceneHandler.drawNextScene();
+				}
+			);
+        </script>
+        <style>
+			#placeholder {
+				width: 600px;
+				height: 400px;
+				border: 1px solid gray;
+			}
+        </style>
+    </head>
+    <body>
+        <h1>SceneHandler test</h1>
+		<div id="placeholder"></div>
+    </body>
+</html>
