@@ -7,12 +7,11 @@ function SceneHandler() {
 
 
 SceneHandler.prototype.drawNextScene = function() {
-	console.log('called me!')
 	if (this.scenes.length > 0) {
 		
 		var self = this;
 		self.previous = self.current;
-		var current = self.current = this.scenes.splice(0, 1)[0];
+		var current = self.current = this.scenes.shift();
 		self.renderer(
 			current.func,
 			current.place,
@@ -36,7 +35,7 @@ SceneHandler.prototype.push = function(func, place, config, translations) {
 				spawnTransition: 'page-scaleUp', //in separate css
 				removeTranstion: 'page-moveToLeft', //in separate css
 				transition: true, 
-				className: 'page-' + self.guid(),
+				className: 'page-' + self._guid(),
 				html: '',
 				clickable: true,
 				},
@@ -52,18 +51,17 @@ SceneHandler.prototype.renderer = function(func, place, config, translations, ne
 	var self = this;
 	// is saved?
 	if(self.previous && self.previous.config.saveAs) {
-		self.saveScene(self.previous);
+		self._saveScene(self.previous);
 	}
-
 	else {
 		// if this is the first, there is no previous
 		if(self.previous) {
-			self.removePrevious();
+			self._removePrevious();
+		}
+		else {
+			self._appendNext();
 		}
 	}
-
-	self.appendNext(place);
-
 
 	if(func) {func();}
 
@@ -74,62 +72,100 @@ SceneHandler.prototype.renderer = function(func, place, config, translations, ne
 }
 
 // don't remove, just hide
-SceneHandler.prototype.saveScene = function(scene) {
+SceneHandler.prototype._saveScene = function(scene) {
 	var self = this;
-	if(self.previous.tarnsition) {
-		// add here animation and animation listener
-		// I'm too tired for now :D
-	}
-	$('.'+self.previous.config.className).hide();
-	self.savedScenes[scene.saveAs] = self.previous;
+	self.savedScenes[scene.config.saveAs] = scene;	
 
-	console.log(self.savedScenes);
+	if(scene.config.transition) {
+		function animationEnd(e) {
+			$('.'+scene.config.className).hide();
+			self._appendNext();
+		}
+		self._eventListener($('.'+scene.config.className)[0], "AnimationEnd", animationEnd);
+		$('.'+scene.config.className).addClass(scene.config.removeTransition);
+
+	}
+	else {
+		$('.'+scene.config.className).hide();
+	}
+
 }
 
-SceneHandler.prototype.removePrevious = function() {
+SceneHandler.prototype.showScene = function(name) {
+	var self = this;
+	var scene = self.savedScenes[name];
+
+	if(scene) {
+		self.scenes.unshift(scene);
+
+		$('.'+scene.config.className).show();
+
+		self.drawNextScene();
+	}
+}
+
+SceneHandler.prototype._removePrevious = function() {
 	var self = this;
 
 	// remove previous page
 	if(self.previous.config.transition) {
-		$('.'+self.previous.config.className).addClass(self.previous.config.removeTransition);
-		
-		setTimeout(function() {
+		function animationEnd(e) {
 			$('.'+self.previous.config.className).remove();
-		}, 700);
+
+			console.log("removeAnimationEnd");
+			self._appendNext();
+		}
+
+		self._eventListener($('.'+self.previous.config.className)[0], "AnimationEnd", animationEnd);
+
+		$('.'+self.previous.config.className).addClass(self.previous.config.removeTransition);
+
 	}
 
 	else {
 		$('.'+self.previous.config.className).remove();
+		self._appendNext();
 	}
 }
 
 
-SceneHandler.prototype.appendNext = function(place) {
+SceneHandler.prototype._appendNext = function() {
 	console.log("add new");
 	var self = this;
+	var place = self.current.place;
+
 	if(self.current.config.transition) {
 
-		setTimeout(function() {
-			place.append('<div class="hidden ' + self.current.config.className + ' ' + self.current.config.name + ' ' +self.current.config.spawnTransition+ '"></div>');
-			setTimeout(function(){
-				$('.'+self.current.config.className).removeClass('hidden');
-			}, 0);
+		place.append('<div class="hidden ' + self.current.config.className + ' ' + self.current.config.name + ' ' +self.current.config.spawnTransition+ '"></div>');
+		setTimeout(function(){
+			$('.'+self.current.config.className).removeClass('hidden');
+		}, 0);
 
-			//add html-content
-			$('.'+self.current.config.className).append(self.current.config.html);
-
-		},500);
-
-
+		//add html-content
+		$('.'+self.current.config.className).append(self.current.config.html);
 	}
 
 	else {
 		place.append('<div class="' + self.current.config.className + ' ' + self.current.config.name +'"></div>');
+		
+		//add html-content
+		$('.'+self.current.config.className).append(self.current.config.html);
 
 	}
 }
 
-SceneHandler.prototype.guid = function() {
+SceneHandler.prototype._eventListener = function(element, type, callback) {
+	//takes in jquery-object and changes it to reqular dom element.
+
+	var pfx = ["webkit", "moz", "MS", "o", ""];
+
+	for (var p = 0; p < pfx.length; p++) {
+		if (!pfx[p]) type = type.toLowerCase();
+		element.addEventListener(pfx[p]+type, callback, false);
+	}
+}
+
+SceneHandler.prototype._guid = function() {
 
 	  function s4() {
 	    return Math.floor((1 + Math.random()) * 0x10000)

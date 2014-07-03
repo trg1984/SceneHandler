@@ -29,18 +29,19 @@
 			var func = function(place, config, translations, next) {
 				console.log("Yey! I'm here!");
 			}
-        
+        var sceneHandler = null;
 			$(document).ready(
 				function(e) {
 					console.log('lataus alkaa!');
 
-					var sceneHandler = new SceneHandler();
+					sceneHandler = new SceneHandler();
 					sceneHandler.push(func, $('body'), {
 							className: 'page1',
 							spawnTransition: 'page-scaleUp',
 							removeTransition: 'page-moveToLeft',
 							html: '<h1>Click to start!</h1>',
 							saveAs: 'testi',
+							transition: true,
 							clickable: true
 						}, null);
 
