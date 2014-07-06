@@ -8,67 +8,59 @@
         <script src="SceneHandler.js"></script>
         <script>
         
-			// var func = function(place, config, translations, callback) {
-			// 	console.log('funktiossa!');
-			// 	//remove previous page
-			// 	place.remove()
+        	// change to next view after click
+			var func = function(place, sceneConfig, config, next) {
+				$('body').on('click', '.' + sceneConfig.className, next);
+			};
 
-
-
-			// 	// place.empty().css('background-color', config.color);
-			// 	place.addClass(config.className);
-			// 	if (typeof(config.html) === 'string') place.append(config.text);
-
-
-			// 	if (typeof(config.clickable) === 'boolean' || config.clickable) {
-			// 		place.click( callback );
-			// 	}
-			// 	else setTimeout(callback, 1000);
-			// }
-
-			var func = function(place, config, translations, next) {
-				console.log("Yey! I'm here!");
-			}
         var sceneHandler = null;
 			$(document).ready(
 				function(e) {
 					console.log('lataus alkaa!');
 
 					sceneHandler = new SceneHandler();
-					sceneHandler.push(func, $('body'), {
+
+					sceneHandler.save('testi', func, $('body'), 
+						{
 							className: 'page1',
 							spawnTransition: 'page-scaleUp',
 							removeTransition: 'page-moveToLeft',
-							html: '<h1>Click to start!</h1>',
-							saveAs: 'testi',
 							transition: true,
-							clickable: true
-						}, null);
+						},
+						{
+							content: 'Saved testi'
+						});
+
+					sceneHandler.pushSaved('testi');
 
 					sceneHandler.push(func, $('body'), {
 							className: 'page2', 
-							html: '<h1>jep!</h1>',
-							clickable: true,
 							removeTransition: 'page-moveToLeft',
 							spawnTransition: 'page-scaleUp',
-						}, null);
+						},
+						{
+							content: '<h1>page2</h1>'
+						});						
 
 					sceneHandler.push(func, $('body'), {
 							className: 'page3',
-							html: '<h1>jep!2</h1>',
 							removeTransition: 'page-moveToLeft',
 							spawnTransition: 'page-scaleUp',
-							clickable:true
-						}, null);
+						}, 
+						{
+							content: '<h2>PAGE3</H2>'
+						});
 
 					sceneHandler.push(func, $('body'), {
 							className: 'page4',
-							html: '<h1>jep!3</h1>',
 							removeTransition: 'page-moveToLeft',
 							spawnTransition: 'page-scaleUp',
-							clickable: true
-						}, null);
-					console.log(sceneHandler);
+						},
+						{
+							content: '<h1>Page 4 </page>'
+						});					 	
+
+					sceneHandler.pushSaved('testi');
 
 					sceneHandler.drawNextScene();
 				}

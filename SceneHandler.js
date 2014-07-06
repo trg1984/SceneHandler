@@ -16,44 +16,49 @@ SceneHandler.prototype.drawNextScene = function() {
 			current.func,
 			current.place,
 			current.config,
-			current.translations,
+			current.sceneConfig,
 			function() { self.drawNextScene() }
 		);
 	}
 }
 
-SceneHandler.prototype.push = function(func, place, config, translations) {
+SceneHandler.prototype.push = function(func, place, sceneConfig, config) {
 	var self = this; 
 
 	//Default values
-	var configs = {
+	var scene = {
 			func: func,
 			place: place,
 			config: {
+				content: '',
+			},
+			sceneConfig: {
 				name: 'page',
 				saveAs: '',
 				spawnTransition: 'page-scaleUp', //in separate css
 				removeTranstion: 'page-moveToLeft', //in separate css
 				transition: true, 
 				className: 'page-' + self._guid(),
-				html: '',
 				clickable: true,
-				},
-			translations: translations
+				translations: null,
+				}
 			};	
 
-	for (var item in config) configs.config[item] = config[item];
-	this.scenes.push(configs);
+	for (var item in sceneConfig) scene.sceneConfig[item] = sceneConfig[item];
+	for (var item in config) scene.config[item] = config[item];
+
+	this.scenes.push(scene);
 }
 
 
-SceneHandler.prototype.renderer = function(func, place, config, translations, next) {
+SceneHandler.prototype.renderer = function(func, place, sceneConfig,config, next) {
 	var self = this;
 	// is saved?
-	if(self.previous && self.previous.config.saveAs) {
-		self._saveScene(self.previous);
-	}
-	else {
+	// if(self.previous && self.previous.sceneConfig.saveAs) {
+	// 	self._saveScene(self.previous);
+	// 	console.log("self.previous: ", self.previous);
+	// }
+	// else {
 		// if this is the first, there is no previous
 		if(self.previous) {
 			self._removePrevious();
@@ -61,46 +66,61 @@ SceneHandler.prototype.renderer = function(func, place, config, translations, ne
 		else {
 			self._appendNext();
 		}
-	}
+	// }
 
-	if(func) {func();}
+	if(func) {func(place,config, sceneConfig, next);}
 
-	if (typeof(config.clickable) === 'boolean' || config.clickable) {
-		$('body').on('click', '.' + config.className, next);
-	}
-	else setTimeout(next, 2000);
 }
 
-// don't remove, just hide
-SceneHandler.prototype._saveScene = function(scene) {
+//Save the scene
+SceneHandler.prototype.save = function(name, func, place, sceneConfig, config) {
 	var self = this;
-	self.savedScenes[scene.config.saveAs] = scene;	
 
-	if(scene.config.transition) {
-		function animationEnd(e) {
-			$('.'+scene.config.className).hide();
-			self._appendNext();
-		}
-		self._eventListener($('.'+scene.config.className)[0], "AnimationEnd", animationEnd);
-		$('.'+scene.config.className).addClass(scene.config.removeTransition);
+	//Default values
+	var scene = {
+			func: func,
+			place: place,
+			config: {
+				content: '',
+			},
+			sceneConfig: {
+				name: 'page',
+				spawnTransition: 'page-scaleUp', //in separate css
+				removeTranstion: 'page-moveToLeft', //in separate css
+				transition: true, 
+				className: 'page-' + self._guid(),
+				clickable: true,
+				translations: null,
+				}
+			};	
 
-	}
-	else {
-		$('.'+scene.config.className).hide();
-	}
+	for (var item in sceneConfig) scene.sceneConfig[item] = sceneConfig[item];
+	for (var item in config) scene.config[item] = config[item];
+
+	self.savedScenes[name] = scene;	
+
+	// if(scene.config.transition) {
+	// 	function animationEnd(e) {
+	// 		$('.'+scene.config.className).hide();
+	// 		self._appendNext();
+	// 	}
+	// 	self._eventListener($('.'+scene.config.className)[0], "AnimationEnd", animationEnd);
+	// 	$('.'+scene.config.className).addClass(scene.config.removeTransition);
+
+	// }
+	// else {
+	// 	$('.'+scene.config.className).hide();
+	// }
 
 }
 
-SceneHandler.prototype.showScene = function(name) {
+
+SceneHandler.prototype.pushSaved = function(name) {
 	var self = this;
 	var scene = self.savedScenes[name];
 
 	if(scene) {
-		self.scenes.unshift(scene);
-
-		$('.'+scene.config.className).show();
-
-		self.drawNextScene();
+		self.scenes.push(scene);
 	}
 }
 
@@ -108,48 +128,50 @@ SceneHandler.prototype._removePrevious = function() {
 	var self = this;
 
 	// remove previous page
-	if(self.previous.config.transition) {
+	if(self.previous.sceneConfig.transition) {
 		function animationEnd(e) {
-			$('.'+self.previous.config.className).remove();
+			$('.'+self.previous.sceneConfig.className).remove();
 
 			console.log("removeAnimationEnd");
 			self._appendNext();
 		}
 
-		self._eventListener($('.'+self.previous.config.className)[0], "AnimationEnd", animationEnd);
+		self._eventListener($('.'+self.previous.sceneConfig.className)[0], "AnimationEnd", animationEnd);
 
-		$('.'+self.previous.config.className).addClass(self.previous.config.removeTransition);
+		$('.'+self.previous.sceneConfig.className).addClass(self.previous.sceneConfig.removeTransition);
 
 	}
 
 	else {
-		$('.'+self.previous.config.className).remove();
+		$('.'+self.previous.sceneConfig.className).remove();
 		self._appendNext();
 	}
 }
 
 
 SceneHandler.prototype._appendNext = function() {
-	console.log("add new");
 	var self = this;
+
+	console.log("add new ", self.current );
+
 	var place = self.current.place;
 
-	if(self.current.config.transition) {
+	if(self.current.sceneConfig.transition) {
 
-		place.append('<div class="hidden ' + self.current.config.className + ' ' + self.current.config.name + ' ' +self.current.config.spawnTransition+ '"></div>');
+		place.append('<div class="hidden ' + self.current.sceneConfig.className + ' ' + self.current.sceneConfig.name + ' ' +self.current.sceneConfig.spawnTransition+ '"></div>');
 		setTimeout(function(){
-			$('.'+self.current.config.className).removeClass('hidden');
+			$('.'+self.current.sceneConfig.className).removeClass('hidden');
 		}, 0);
 
 		//add html-content
-		$('.'+self.current.config.className).append(self.current.config.html);
+		$('.'+self.current.sceneConfig.className).append(self.current.config.content);
 	}
 
 	else {
-		place.append('<div class="' + self.current.config.className + ' ' + self.current.config.name +'"></div>');
+		place.append('<div class="' + self.current.sceneConfig.className + ' ' + self.current.sceneConfig.name +'"></div>');
 		
 		//add html-content
-		$('.'+self.current.config.className).append(self.current.config.html);
+		$('.'+self.current.sceneConfig.className).append(self.current.sceneConfig.content);
 
 	}
 }
