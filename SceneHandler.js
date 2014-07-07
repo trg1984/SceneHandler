@@ -8,10 +8,15 @@ function SceneHandler() {
 
 SceneHandler.prototype.drawNextScene = function() {
 	if (this.scenes.length > 0) {
-		
+		console.log("drawing next");
 		var self = this;
+
 		self.previous = self.current;
+		
 		var current = self.current = this.scenes.shift();
+		if(self.previous) {
+			console.log("Current: ", self.current.sceneConfig.className, " Previous: ", self.previous.sceneConfig.className);
+		}
 		self.renderer(
 			current.func,
 			current.place,
@@ -36,7 +41,7 @@ SceneHandler.prototype.push = function(func, place, sceneConfig, config) {
 				name: 'page',
 				saveAs: '',
 				spawnTransition: 'page-scaleUp', //in separate css
-				removeTranstion: 'page-moveToLeft', //in separate css
+				removeTransition: 'page-moveToLeft', //in separate css
 				transition: true, 
 				className: 'page-' + self._guid(),
 				clickable: true,
@@ -53,29 +58,20 @@ SceneHandler.prototype.push = function(func, place, sceneConfig, config) {
 
 SceneHandler.prototype.renderer = function(func, place, sceneConfig,config, next) {
 	var self = this;
-	// is saved?
-	// if(self.previous && self.previous.sceneConfig.saveAs) {
-	// 	self._saveScene(self.previous);
-	// 	console.log("self.previous: ", self.previous);
-	// }
-	// else {
-		// if this is the first, there is no previous
-		if(self.previous) {
-			self._removePrevious();
-		}
-		else {
-			self._appendNext();
-		}
-	// }
+	if(self.previous) {
+		self._removePrevious();
+	}
+	else {
+		self._appendNext();
+	}
 
 	if(func) {func(place,config, sceneConfig, next);}
 
 }
 
 //Save the scene
-SceneHandler.prototype.save = function(name, func, place, sceneConfig, config) {
+SceneHandler.prototype.save = function(func, place, sceneConfig, config) {
 	var self = this;
-
 	//Default values
 	var scene = {
 			func: func,
@@ -86,7 +82,7 @@ SceneHandler.prototype.save = function(name, func, place, sceneConfig, config) {
 			sceneConfig: {
 				name: 'page',
 				spawnTransition: 'page-scaleUp', //in separate css
-				removeTranstion: 'page-moveToLeft', //in separate css
+				removeTransition: 'page-moveToLeft', //in separate css
 				transition: true, 
 				className: 'page-' + self._guid(),
 				clickable: true,
@@ -97,21 +93,22 @@ SceneHandler.prototype.save = function(name, func, place, sceneConfig, config) {
 	for (var item in sceneConfig) scene.sceneConfig[item] = sceneConfig[item];
 	for (var item in config) scene.config[item] = config[item];
 
-	self.savedScenes[name] = scene;	
+	self.savedScenes[scene.sceneConfig.saveAs] = scene;	
+}
 
-	// if(scene.config.transition) {
-	// 	function animationEnd(e) {
-	// 		$('.'+scene.config.className).hide();
-	// 		self._appendNext();
-	// 	}
-	// 	self._eventListener($('.'+scene.config.className)[0], "AnimationEnd", animationEnd);
-	// 	$('.'+scene.config.className).addClass(scene.config.removeTransition);
+//Show saved scene 
+SceneHandler.prototype.show = function(name, callback) {
+	var self = this;
+	var scene = self.savedScenes[name]; 
 
-	// }
-	// else {
-	// 	$('.'+scene.config.className).hide();
-	// }
+	//save current view
+	// self.scenes.unshift(self.current);
 
+	//add saved on top of that
+	self.scenes.splice(1, 0, self.current);
+	self.scenes.splice(0, 0, scene);
+
+	self.drawNextScene();
 }
 
 
@@ -127,32 +124,31 @@ SceneHandler.prototype.pushSaved = function(name) {
 SceneHandler.prototype._removePrevious = function() {
 	var self = this;
 
-	// remove previous page
+	// remove - transition
 	if(self.previous.sceneConfig.transition) {
 		function animationEnd(e) {
-			$('.'+self.previous.sceneConfig.className).remove();
+			console.log("remove", '.'+self.previous.sceneConfig.className);
 
-			console.log("removeAnimationEnd");
+			$('.'+self.previous.sceneConfig.className).remove();
 			self._appendNext();
+
 		}
 
 		self._eventListener($('.'+self.previous.sceneConfig.className)[0], "AnimationEnd", animationEnd);
-
 		$('.'+self.previous.sceneConfig.className).addClass(self.previous.sceneConfig.removeTransition);
-
 	}
 
+	// remove - no transition
 	else {
 		$('.'+self.previous.sceneConfig.className).remove();
 		self._appendNext();
 	}
+	
 }
 
 
 SceneHandler.prototype._appendNext = function() {
 	var self = this;
-
-	console.log("add new ", self.current );
 
 	var place = self.current.place;
 

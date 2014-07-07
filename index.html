@@ -20,11 +20,12 @@
 
 					sceneHandler = new SceneHandler();
 
-					sceneHandler.save('testi', func, $('body'), 
+					sceneHandler.save(func, $('body'), 
 						{
+							saveAs: 'testi',
 							className: 'page1',
 							spawnTransition: 'page-scaleUp',
-							removeTransition: 'page-moveToLeft',
+							removeTransition: 'page-scaleDown',
 							transition: true,
 						},
 						{
@@ -88,6 +89,10 @@
 				animation: scaleUp .7s ease both;
 			}
 
+			.page-scaleDown {
+				-webkit-animation: scaleDownCenter .7s ease both;
+				animation: scaleDownCenter .7s ease both;
+			}
 
 			.page-moveToLeft {
 				-webkit-animation: moveToLeft .6s ease both;
@@ -95,7 +100,7 @@
 			}
 
 			.hidden {
-				display: hidden !important;
+				display: none !important;
 			}
 
 
@@ -115,6 +120,16 @@
 			}
 			@keyframes scaleUp {
 				from { opacity: 0; -webkit-transform: scale(.8); transform: scale(.8); }
+			}
+
+
+			@-webkit-keyframes scaleDownCenter {
+				from { }
+				to { opacity: 0; -webkit-transform: scale(.7); }
+			}
+			@keyframes scaleDownCenter {
+				from { }
+				to { opacity: 0; -webkit-transform: scale(.7); transform: scale(.7); }
 			}
 
 
