@@ -101,15 +101,53 @@ SceneHandler.prototype.show = function(name, callback) {
 	var self = this;
 	var scene = self.savedScenes[name]; 
 
-	//save current view
-	// self.scenes.unshift(self.current);
+	var place = scene.place;
+	if(scene) {
+		if(scene.sceneConfig.transition) {
 
-	//add saved on top of that
-	self.scenes.splice(1, 0, self.current);
-	self.scenes.splice(0, 0, scene);
+			place.append('<div class="hidden ' + scene.sceneConfig.className + ' ' + scene.sceneConfig.name + ' ' +scene.sceneConfig.spawnTransition+ '"></div>');
+			setTimeout(function(){
+				$('.'+scene.sceneConfig.className).removeClass('hidden');
+			}, 0);
 
-	self.drawNextScene();
+			//add html-content
+			$('.'+scene.sceneConfig.className).append(scene.config.content);
+		}
+
+		else {
+			place.append('<div class="' + scene.sceneConfig.className + ' ' + scene.sceneConfig.name +'"></div>');
+			
+			//add html-content
+			$('.'+scene.sceneConfig.className).append(scene.sceneConfig.content);
+		}
+	}
 }
+
+
+//Hide saved scene 
+SceneHandler.prototype.hide = function(name, callback) {
+	var self = this;
+	var scene = self.savedScenes[name]; 
+
+	if(scene) {
+		// remove - transition
+		if(scene.sceneConfig.transition) {
+			function animationEnd(e) {
+				console.log("remove", '.'+scene.sceneConfig.className);
+				$('.'+scene.sceneConfig.className).remove();
+			}
+
+			self._eventListener($('.'+scene.sceneConfig.className)[0], "AnimationEnd", animationEnd);
+			$('.'+scene.sceneConfig.className).addClass(scene.sceneConfig.removeTransition);
+		}
+
+		// remove - no transition
+		else {
+			$('.'+scene.sceneConfig.className).remove();
+		}
+	}
+}
+
 
 
 SceneHandler.prototype.pushSaved = function(name) {

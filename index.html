@@ -13,6 +13,11 @@
 				$('body').on('click', '.' + sceneConfig.className, next);
 			};
 
+			// Hide view after click
+			var func2 = function(place, sceneConfig, config, next) {
+				$('body').on('click', '.' + sceneConfig.className, sceneHandler.hide(sceneConfig.className));
+			};
+
         var sceneHandler = null;
 			$(document).ready(
 				function(e) {
@@ -20,7 +25,7 @@
 
 					sceneHandler = new SceneHandler();
 
-					sceneHandler.save(func, $('body'), 
+					sceneHandler.save(func2, $('body'), 
 						{
 							saveAs: 'testi',
 							className: 'page1',
@@ -32,7 +37,7 @@
 							content: 'Saved testi'
 						});
 
-					sceneHandler.pushSaved('testi');
+					// sceneHandler.pushSaved('testi');
 
 					sceneHandler.push(func, $('body'), {
 							className: 'page2', 
