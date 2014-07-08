@@ -17,12 +17,15 @@ SceneHandler.prototype.drawNextScene = function() {
 		if(self.previous) {
 			console.log("Current: ", self.current.sceneConfig.className, " Previous: ", self.previous.sceneConfig.className);
 		}
+
+		//add next function
+		self.current.next = function() { self.drawNextScene() }
+
 		self.renderer(
 			current.func,
 			current.place,
 			current.config,
-			current.sceneConfig,
-			function() { self.drawNextScene() }
+			current.sceneConfig
 		);
 	}
 }
@@ -65,7 +68,7 @@ SceneHandler.prototype.renderer = function(func, place, sceneConfig,config, next
 		self._appendNext();
 	}
 
-	if(func) {func(place,config, sceneConfig, next);}
+	if(func) {func(self.current);}
 
 }
 
@@ -76,6 +79,8 @@ SceneHandler.prototype.save = function(func, place, sceneConfig, config) {
 	var scene = {
 			func: func,
 			place: place,
+			next: self.drawNextScene,
+			hide: self.hide(sceneConfig.saveAs),
 			config: {
 				content: '',
 			},
@@ -120,7 +125,15 @@ SceneHandler.prototype.show = function(name, callback) {
 			//add html-content
 			$('.'+scene.sceneConfig.className).append(scene.sceneConfig.content);
 		}
+
+			if(callback) {
+				callback(scene);
+			}
+			else {
+				scene.func(scene);
+			}
 	}
+
 }
 
 
@@ -145,6 +158,11 @@ SceneHandler.prototype.hide = function(name, callback) {
 		else {
 			$('.'+scene.sceneConfig.className).remove();
 		}
+
+
+		if(callback) {
+			callback(scene);
+		}	
 	}
 }
 

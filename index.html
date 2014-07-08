@@ -9,13 +9,19 @@
         <script>
         
         	// change to next view after click
-			var func = function(place, sceneConfig, config, next) {
-				$('body').on('click', '.' + sceneConfig.className, next);
+			var func = function(scene) {
+				console.log(scene);
+				$('body').on('click', '.' + scene.sceneConfig.className, scene.next);
 			};
 
 			// Hide view after click
-			var func2 = function(place, sceneConfig, config, next) {
-				$('body').on('click', '.' + sceneConfig.className, sceneHandler.hide(sceneConfig.className));
+			var func2 = function(scene) {
+					$('body').on('click', '.'+scene.sceneConfig.className, 
+
+					function() {
+						sceneHandler.hide(scene.sceneConfig.saveAs)
+
+					});
 			};
 
         var sceneHandler = null;
@@ -34,7 +40,7 @@
 							transition: true,
 						},
 						{
-							content: 'Saved testi'
+							content: 'Saved testi <br/> <button id="close">close</button>'
 						});
 
 					// sceneHandler.pushSaved('testi');
@@ -65,8 +71,6 @@
 						{
 							content: '<h1>Page 4 </page>'
 						});					 	
-
-					sceneHandler.pushSaved('testi');
 
 					sceneHandler.drawNextScene();
 				}
