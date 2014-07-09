@@ -2,7 +2,7 @@
     <head>
         <meta charset="utf-8" />
         <title>CSV file test</title>
-        <link rel="stylesheet" href="style/page.css" />
+        <link rel="stylesheet" href="scenehandler.css" />
         <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
         <script src="SceneHandler.js"></script>
@@ -80,83 +80,7 @@
         	body {
         		background: #ddd;
         	}
-        	.page {
-        		background: #fff;
-        		display:block;
-        		position:absolute;
-        		top:0;
-        		bottom:0;
-        		right:0;
-        		left:0;
-        		width: 100%;
-        		height: 100%;
-        	}
 
-			/* Animation styles */
-			.page-scaleUp {
-				-webkit-animation: scaleUp .7s ease both;
-				animation: scaleUp .7s ease both;
-			}
-
-			.page-scaleDown {
-				-webkit-animation: scaleDownCenter .7s ease both;
-				animation: scaleDownCenter .7s ease both;
-			}
-
-			.page-moveToLeft {
-				-webkit-animation: moveToLeft .6s ease both;
-				animation: moveToLeft .6s ease both;
-			}
-
-			.hidden {
-				display: none !important;
-			}
-
-
-			/****** Keyframes *********/
-
-			@-webkit-keyframes moveToLeft {
-				from { }
-				to { -webkit-transform: translateX(-100%); }
-			}
-			@keyframes moveToLeft {
-				from { }
-				to { -webkit-transform: translateX(-100%); transform: translateX(-100%); }
-			}
-
-			@-webkit-keyframes scaleUp {
-				from { opacity: 0; -webkit-transform: scale(.8); }
-			}
-			@keyframes scaleUp {
-				from { opacity: 0; -webkit-transform: scale(.8); transform: scale(.8); }
-			}
-
-
-			@-webkit-keyframes scaleDownCenter {
-				from { }
-				to { opacity: 0; -webkit-transform: scale(.7); }
-			}
-			@keyframes scaleDownCenter {
-				from { }
-				to { opacity: 0; -webkit-transform: scale(.7); transform: scale(.7); }
-			}
-
-
-			@-webkit-keyframes moveToTop {
-				from { }
-				to { -webkit-transform: translateY(-100%); }
-			}
-			@keyframes moveToTop {
-				from { }
-				to { -webkit-transform: translateY(-100%); transform: translateY(-100%); }
-			}
-
-			@-webkit-keyframes moveFromTop {
-				from { -webkit-transform: translateY(-100%); }
-			}
-			@keyframes moveFromTop {
-				from { -webkit-transform: translateY(-100%); transform: translateY(-100%); }
-			}
 
 
         </style>
