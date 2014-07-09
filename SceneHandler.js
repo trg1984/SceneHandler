@@ -8,15 +8,11 @@ function SceneHandler() {
 
 SceneHandler.prototype.drawNextScene = function() {
 	if (this.scenes.length > 0) {
-		console.log("drawing next");
 		var self = this;
 
 		self.previous = self.current;
 		
 		var current = self.current = this.scenes.shift();
-		if(self.previous) {
-			console.log("Current: ", self.current.sceneConfig.className, " Previous: ", self.previous.sceneConfig.className);
-		}
 
 		//add next function
 		self.current.next = function() { self.drawNextScene() }
@@ -68,7 +64,7 @@ SceneHandler.prototype.renderer = function(func, place, sceneConfig,config, next
 		self._appendNext();
 	}
 
-	if(func) {func(self.current);}
+	// if(func) {func(self.current);}
 
 }
 
@@ -146,7 +142,6 @@ SceneHandler.prototype.hide = function(name, callback) {
 		// remove - transition
 		if(scene.sceneConfig.transition) {
 			function animationEnd(e) {
-				console.log("remove", '.'+scene.sceneConfig.className);
 				$('.'+scene.sceneConfig.className).remove();
 			}
 
@@ -181,10 +176,8 @@ SceneHandler.prototype._removePrevious = function() {
 	var self = this;
 
 	// remove - transition
-	if(self.previous.sceneConfig.transition) {
+	if(self.previous.sceneConfig.transition && self.previous.sceneConfig.removeTransition.length > 0) {
 		function animationEnd(e) {
-			console.log("remove", '.'+self.previous.sceneConfig.className);
-
 			$('.'+self.previous.sceneConfig.className).remove();
 			self._appendNext();
 
@@ -208,23 +201,25 @@ SceneHandler.prototype._appendNext = function() {
 
 	var place = self.current.place;
 
-	if(self.current.sceneConfig.transition) {
+	if(self.current.sceneConfig.transition && self.current.sceneConfig.spawnTransition.length>0) {
 
 		place.append('<div class="hidden ' + self.current.sceneConfig.className + ' ' + self.current.sceneConfig.name + ' ' +self.current.sceneConfig.spawnTransition+ '"></div>');
+
 		setTimeout(function(){
 			$('.'+self.current.sceneConfig.className).removeClass('hidden');
 		}, 0);
 
 		//add html-content
 		$('.'+self.current.sceneConfig.className).append(self.current.config.content);
+		if(self.current.func) {self.current.func(self.current);}
 	}
 
 	else {
 		place.append('<div class="' + self.current.sceneConfig.className + ' ' + self.current.sceneConfig.name +'"></div>');
 		
 		//add html-content
-		$('.'+self.current.sceneConfig.className).append(self.current.sceneConfig.content);
-
+		$('.'+self.current.sceneConfig.className).append(self.current.config.content);
+		if(self.current.func) {self.current.func(self.current);}
 	}
 }
 
